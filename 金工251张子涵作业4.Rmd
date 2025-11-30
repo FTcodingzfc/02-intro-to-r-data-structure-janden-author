@@ -1,0 +1,208 @@
+---
+title: "金工251张子涵作业4"
+author: "张子涵"
+output: html_document
+---
+#一. data.table是一个高效的数据处理包，一般用来处理大量数据，操作大型数据集.data.tabble是data.frame的扩展，相对于data.frame更快更小.
+#as.data.table() setDT()
+```{r}
+library(data.table) #导入包
+
+dt <- as.data.table(mtcars) #将mtcars转换成data,table，在赋值给dt
+class(dt)# 查看dt结构
+  
+crs <- mtcars # 将mtcars的值赋给crs
+setDT(crs) #将crs转换成data.table
+class(crs) #查看crs结构
+```
+#二 fread() csv、tsv、txt  fwrite()
+```{r}
+library(data.table)#导入包
+
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+fwrite(dt,"my.txt") #导出dt的数据成my.txt存放在项目文件夹中
+
+fread("my.txt")#再次导入my.txt
+```
+#三 i:行筛选条件，类似SQL的where，j:要选择的列或者要进行的操作 by:分组，类似SQL的group by 
+#i:筛选行,j:选择列、计算、赋值,by:分组. i>by>j
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[cyl==6, .(x1 = mean(carb)),by=gear] # 筛选cyl为6的行，在按照gear分组，最后取carb的平均值
+```
+#四
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[cyl>6]  # 引用cyl值大于6的量
+```
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[, .(a1 =cyl+gear)] #返回cyl和gear相加的值 .用于创建列表
+```
+#五
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[cyl==6] #筛选出cyl值为6的行
+```
+#逻辑向量、正整数向量、空格、字符向量
+#1 直接给出列的名
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[,.(cyl,gear,hp)]
+```
+#2 使用向量
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+a1 <- c("cyl","gear","hp")
+dt[,..a1]
+```
+# data.frame与data.table部分能够通用但data.frame没有统一高效的内置机制，速度于安全性上不如data.table的筛选
+#六
+#data.table
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+a1 <- dt[,.(cyl)]
+class(a1)
+```
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+a1 <- dt[,list(cyl)]
+class(a1)
+```
+#向量
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+a1 <- dt[,cyl]
+class(a1)
+```
+#七
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[order(cyl,gear)] #使用order()
+```
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[order(cyl,-hp)] #默认升序，变量前加-表示降序
+```
+```{r}
+library(data.table)#导入包
+library(dplyr) #导入dplyr包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[order(cyl,desc(hp))]#使用desc()降序
+```
+#三个部分中只有i可以进行排序操作
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[cyl==6][order(cyl,-hp)]#筛选出cyl=6的行，在进行排序
+```
+#八
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[,hp2 := hp*2] #将hp乘二得到新列hp2
+```
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[,hp := hp*10]#将hp列的值都乘10
+```
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[,c("cyl2","hp2") := .(cyl+1,hp*2) ]#同时生成两列，cyl+1得到cyl2，hp*2得到hp2
+```
+#九
+#用by进行分组，功能类似于sql的group by 。keyby是by的变体，与by相比keyby不设置key且不保证排序顺序。
+#结合上一题
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[,c1 := ifelse(cyl>4,"high","low")] #将cyl的值分成两部分，大于4的为high，小于4的为low，并赋值给新变量hp2
+dt[,.(hp1=sum(hp)),by = .(cyl,c1)] # 将原hp的值求和，按照cyl和hp2进行分组
+```
+#十
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+dt[cyl==6,.(b4 = sum(hp)),by=vs] # 筛选出cyl值为6的行 对hp值进行求和 在按照vs进行分组
+```
+#十一
+#.sd是一个data.table对象，代表当前分组的数据的子集 生成的数据结构取决于上下文，并不固定，固定的是.sd本质上是一个data.table对象。经过分组操作之后的数据结构取决于j中的操作类型
+```{r}
+library(data.table)#导入包
+dt <- as.data.table(mtcars)#将mtcars转换成data,table，在赋值给dt
+res <- dt[, head(.SD, 2), by = cyl]# 按 cyl 分组，每组取前 2 行
+class(res) #查看结构
+```
+#十二
+#.N 表示当前上下文中的观测数量（行数），是一个特殊的内置变量，使用之后仍是data.table。分组前表示整个data.table的总行数，分组后表示当前分组内的行数
+#计算行数
+```{r}
+library(data.table)
+dt <- as.data.table(mtcars)
+class(dt[, .(count = .N)])
+```
+#分组后
+```{r}
+library(data.table) #导入包
+dt <- as.data.table(mtcars) #将mtcars转换成data,table，在赋值给dt
+res3 <- dt[, .(count = .N), by = .(cyl,vs)]
+class(res3)
+```
+#十三
+#chaining是用来串联函数使其成为一套流水线将前一个的输出作为后一个的输入的编程模式，一般用在需要对数据进行多步转换、过滤、聚合时使用
+```{r}
+library(data.table)
+library(dplyr)
+result <- mtcars %>%
+  as.data.table() %>%
+  .[vs == 1 & am == 1] %>%
+  .[, .(mpg_aver = mean(mpg), cyl_aver = mean(cyl))]
+
+print(result)
+```
+#十四
+#使用 on = .(key1, key2) 指定多列连接
+#方法一：内连接inner join
+#方法二：外连接outer join
+#区别：内连接：只保留两表共有的键组合，外连接：保留一侧或全部键组合，缺失补 NA
+#十五
+#rbindlist()函数
+```{r}
+library(data.table) #导入包
+dt_org <- as.data.table(mtcars) 
+dt_cpy  <- copy(dt_org)
+dt_cpy[] <- dt_cpy +1 
+res7 <- rbindlist(list(dt_org,dt_cpy))
+print(res3)
+```
+#十六
+#melt 和 cast 是数据重塑的两个核心操作，实现宽格式与长格式之间的转换
+```{r}
+library(data.table)
+dt <- as.data.table(mtcars)
+long <- melt(dt, measure.vars = c("mpg", "hp", "wt"))
+print(long)
+```
+```{r}
+wide <- dcast(long, ... ~ variable, value.var = "value")
+print(wide)
+```
+
+
+  
+  
+  
+
